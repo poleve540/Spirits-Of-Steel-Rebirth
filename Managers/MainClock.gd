@@ -60,8 +60,8 @@ func _process(delta: float) -> void:
 	if time_scale <= PAUSE:
 		return
 	
+	# NOTE(pol): We should use _physics_process instead or the Timer node
 	accumulated_time += delta * time_scale
-	
 	while accumulated_time >= seconds_per_tick:
 		accumulated_time -= seconds_per_tick
 		_tick_hour()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dgfixe44dvfny"]
+[gd_scene load_steps=16 format=3 uid="uid://dgfixe44dvfny"]
 
 [ext_resource type="Script" uid="uid://dqvjehbri1br0" path="res://Scenes/ui_game.gd" id="1_rp7y5"]
 [ext_resource type="Texture2D" uid="uid://bd1tehujs0p3u" path="res://assets/flags/abkhazia_flag.png" id="1_xar7q"]
@@ -12,6 +12,9 @@
 [ext_resource type="Texture2D" uid="uid://ddbgdqwtqoole" path="res://assets/icons/plus_icon.png" id="10_lnl2f"]
 [ext_resource type="Texture2D" uid="uid://bggny42m0dmo1" path="res://assets/icons/minus_icon.png" id="11_6bnrr"]
 [ext_resource type="FontFile" uid="uid://cee8mbnpx3w3h" path="res://font/arial.TTF" id="12_6bnrr"]
+[ext_resource type="PackedScene" uid="uid://bxwbym5vybefv" path="res://decision_tree.tscn" id="13_364vl"]
+[ext_resource type="Theme" uid="uid://c38ivksvf4is0" path="res://button_theme.tres" id="13_sdmnd"]
+[ext_resource type="Script" uid="uid://dksnbn8a7o5je" path="res://Scenes/decision_tree_button.gd" id="13_uqxsi"]
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource("1_rp7y5")
@@ -290,5 +293,20 @@ offset_bottom = 192.0
 theme_override_font_sizes/font_size = 22
 text = "Military Access: No"
 
+[node name="DecisionTreeButton" type="Button" parent="." node_paths=PackedStringArray("decision_tree")]
+offset_left = 915.0
+offset_top = 589.0
+offset_right = 1108.0
+offset_bottom = 628.0
+theme = ExtResource("13_sdmnd")
+text = "Open decision tree"
+script = ExtResource("13_uqxsi")
+decision_tree = NodePath("../DecisionTree")
+
+[node name="DecisionTree" parent="." instance=ExtResource("13_364vl")]
+visible = false
+z_index = 1
+
 [connection signal="mouse_entered" from="GameSpeedControl/Plus" to="." method="_on_button_mouse_entered"]
 [connection signal="mouse_entered" from="GameSpeedControl/Minus" to="." method="_on_button_mouse_entered"]
+[connection signal="button_up" from="DecisionTreeButton" to="DecisionTreeButton" method="_on_button_up"]

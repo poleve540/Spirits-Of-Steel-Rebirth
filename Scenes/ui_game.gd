@@ -21,6 +21,8 @@ enum MenuContext { SELF, WAR, DIPLOMACY }
 @export var action_scene: PackedScene = preload("res://Scenes/action.tscn")
 @export var label_merge_status: Label
 
+@onready var plus: Button = $GameSpeedControl/Plus
+@onready var minus: Button = $GameSpeedControl/Minus
 
 var player: CountryData = null
 
@@ -50,19 +52,16 @@ var menus := {
 	]
 }
 
-func _ready() -> void:
 
+func _ready() -> void:
 	pos_open = sidemenu.position
 	pos_closed = Vector2(pos_open.x - sidemenu.size.x, pos_open.y)
 	sidemenu.position = pos_closed
 	
 	await get_tree().process_frame
-	
 	_connect_signals()
 
 
-@onready var plus: Button = $GameSpeedControl/Plus
-@onready var minus: Button = $GameSpeedControl/Minus
 func _connect_signals() -> void:
 	if MainClock:
 		MainClock.hour_passed.connect(_on_time_passed)
@@ -74,8 +73,8 @@ func _connect_signals() -> void:
 	if CountryManager:
 		CountryManager.player_stats_changed.connect(_on_stats_changed)
 		CountryManager.player_country_changed.connect(_on_player_change)
-		
-		
+	
+	
 	plus.pressed.connect(_on_speed_button_pressed.bind(true))
 	minus.pressed.connect(_on_speed_button_pressed.bind(false))
 
@@ -87,7 +86,7 @@ func _on_player_change() -> void:
 	_on_stats_changed()
 
 
-func _on_province_clicked(pid: int, country: String) -> void:
+func _on_province_clicked(_pid: int, country: String) -> void:
 	selected_country = CountryManager.get_country(country)
 	sidemenu_flag.texture = TroopManager.get_flag(country)
 	label_country_sidemenu.text = country
@@ -109,6 +108,7 @@ func toggle_menu(context := MenuContext.SELF) -> void:
 		sidemenu_flag.texture = nation_flag.texture
 		open_menu(context)
 
+
 # ── Menu Control ──────────────────────────────────────
 func open_menu(context: MenuContext) -> void:
 	build_menu(context)
@@ -116,11 +116,12 @@ func open_menu(context: MenuContext) -> void:
 		MusicManager.play_sfx(MusicManager.SFX.OPEN_MENU)
 	slide_in()
 
+
 func close_menu() -> void:
 	if is_open:
 		MusicManager.play_sfx(MusicManager.SFX.CLOSE_MENU)
 	slide_out()
-		
+
 
 func slide_in() -> void:
 	if is_open: return
@@ -128,11 +129,13 @@ func slide_in() -> void:
 	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(sidemenu, "position", pos_open, slide_duration)
 
+
 func slide_out() -> void:
 	if not is_open: return
 	is_open = false
 	var tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property(sidemenu, "position", pos_closed, slide_duration)
+
 
 func build_menu(context: MenuContext) -> void:
 	for child in actions_container.get_children():
@@ -145,11 +148,14 @@ func build_menu(context: MenuContext) -> void:
 	
 	_refresh_buttons()
 
+
 func _refresh_buttons() -> void:
-	if not is_open: return
+	if not is_open:
+		return
 	for btn in actions_container.get_children():
 		if btn.has_method("check_affordability"):
 			btn.check_affordability(player.political_power)
+
 
 # ── UI Updates ────────────────────────────────────────
 func _update_ui() -> void:
@@ -158,6 +164,7 @@ func _update_ui() -> void:
 	_on_time_passed()
 	_on_stats_changed()
 
+
 func _on_stats_changed() -> void:
 	label_politicalpower.text = str(player.political_power)
 	label_manpower.text       = str(player.manpower)
@@ -165,8 +172,10 @@ func _on_stats_changed() -> void:
 	label_stability.text      = str(player.stability)
 	_refresh_buttons()
 
+
 func _on_time_passed(_h := 0) -> void:
 	label_date.text = MainClock.get_datetime_string()
+
 
 func _update_flag() -> void:
 	if !player: return
@@ -174,14 +183,17 @@ func _update_flag() -> void:
 	if ResourceLoader.exists(path):
 		nation_flag.texture = load(path)
 
+
 func _update_merge_label() -> void:
 	if label_merge_status:
 		label_merge_status.text = "A" if TroopManager.AUTO_MERGE else "M"
+
 
 # ── Action Callbacks ──────────────────────────────────
 func _declare_war():
 	WarManager.declare_war(CountryManager.player_country, selected_country)
 	open_menu(MenuContext.WAR)
+
 func _send_aid():         print("Sending aid!")
 func _improve_relations(): print("Improving relations")
 func _propose_peace():    print("Proposing peace")
@@ -191,13 +203,12 @@ func _form_alliance():    print("Alliance formed")
 func _demand_tribute():   print("Pay up!")
 
 
-
-
-
 func _on_speed_button_pressed(increase: bool):
-	print (increase)
-	if increase: MainClock.increaseSpeed()
-	else: MainClock.decreaseSpeed()
+	if increase:
+		MainClock.increaseSpeed()
+	else:
+		MainClock.decreaseSpeed()
+
 
 func _on_button_mouse_entered() -> void:
 	MusicManager.play_sfx(MusicManager.SFX.HOVERED)

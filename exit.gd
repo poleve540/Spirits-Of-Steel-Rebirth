@@ -1,4 +1,5 @@
 extends Button
 
+
 func _on_pressed() -> void:
-	print("Hi")
+	$Settings.visible = false

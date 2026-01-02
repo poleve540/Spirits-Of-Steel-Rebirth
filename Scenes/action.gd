@@ -47,7 +47,7 @@ func setup_training(troop: CountryData.TroopTraining) -> void:
 func setup_ready(troop: CountryData.ReadyTroop, on_click: Callable) -> void:
 	source_object = troop
 	data = {"is_deploy": true}
-	_callback = on_click # Store the callback so _on_button_pressed can call it!
+	_callback = on_click 
 	base_text = "Deploy %d Divisions" % troop.divisions
 	
 	if not is_node_ready(): await ready

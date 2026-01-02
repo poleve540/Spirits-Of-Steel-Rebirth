@@ -81,3 +81,6 @@ func _process(_delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and !event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		MapManager.handle_click(get_global_mouse_position(), map_sprite)
+	# --- Hover Logic (Mouse Moving) ---
+	if event is InputEventMouseMotion:
+		MapManager.update_hover(get_global_mouse_position(), map_sprite)

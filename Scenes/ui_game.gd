@@ -48,7 +48,8 @@ func _ready() -> void:
 	pos_open = sidemenu.position
 	pos_closed = Vector2(pos_open.x - sidemenu.size.x, pos_open.y)
 	sidemenu.position = pos_closed
-	
+	label_date.text = MainClock.get_datetime_string()
+
 	# Wait one frame to ensure singletons are ready
 	await get_tree().process_frame
 	_connect_signals()
@@ -71,6 +72,7 @@ func _get_menu_actions(context: Context, category: Category) -> Array:
 				{"text": "Build Industry", "cost": 0, "func": "_build_industry"}
 			],
 			Category.MILITARY: [
+				{"text": "Choose Deployment Province", "func": "_choose_deploy_city"},
 				{"text": "Training", "func": "_conscript", "type": "training", "manpower": 10000},
 				{"text": "Training", "func": "_conscript", "type": "training", "manpower": 50000}
 			]
@@ -254,8 +256,12 @@ func _update_flag() -> void:
 	if ResourceLoader.exists(path):
 		nation_flag.texture = load(path)
 
+func _choose_deploy_city(item):
+	GameState.choosing_deploy_city = true
+	#MapManager.set_country_color(player.country_name, Color.WHITE_SMOKE)
+
 # ── Action Callbacks ──────────────────────────────────
-func _declare_war():
+func _declare_war(item):
 	WarManager.declare_war(player, selected_country)
 	open_menu(Context.WAR, Category.GENERAL)
 
@@ -267,11 +273,15 @@ func _conscript(data: Dictionary):
 	_build_action_list()
 	
 func deploy_troop(troop):
-	player.deploy_ready_troop_to_random(troop)
+	if player.deploy_pid == -1:
+		player.deploy_ready_troop_to_random(troop)
+	else:
+		player.deploy_ready_troop_to_pid(troop)
+		
 	_build_action_list()
 	pass
 
-func improve_stability():
+func improve_stability(item):
 	CountryManager.player_country.stability += 0.02
 	_on_stats_changed()
 

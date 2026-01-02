@@ -240,20 +240,29 @@ func update_province_color(pid: int, country_name: String) -> void:
 
 	var new_color = COUNTRY_COLORS.get(country_name, Color.GRAY)
 
-	# 1. Update the province's color in the lookup image
 	_update_lookup(pid, new_color)
 
-	# 2. Handle hover state change (if the player is hovering over the newly conquered province)
 	if pid == last_hovered_pid:
-		# Set the new permanent color as the base color for the hover state
 		original_hover_color = new_color
-
-		# Re-apply the hover highlight on the new color
 		_update_lookup(pid, new_color + Color(0.15, 0.15, 0.15, 0))
 
-	# The actual map data change (province_to_country and country_to_provinces)
-	# is handled by the WarManager for centralized logic, but the visual update
-	# is handled here.
+func set_country_color(country_name: String, custom_color: Color = Color.TRANSPARENT) -> void:
+	var new_color = custom_color
+	if new_color == Color.TRANSPARENT:
+		new_color = COUNTRY_COLORS.get(country_name, Color.GRAY)
+
+	var provinces = country_to_provinces.get(country_name, [])
+	
+	if provinces.is_empty():
+		print("Warning: No provinces found for country: ", country_name)
+		return
+
+	for pid in provinces:
+		_update_lookup(pid, new_color)		
+
+		if pid == last_hovered_pid:
+			original_hover_color = new_color
+			_update_lookup(pid, new_color + Color(0.15, 0.15, 0.15, 0))
 
 
 func get_province_at_pos(pos: Vector2, map_sprite: Sprite2D = null) -> int:
@@ -293,24 +302,36 @@ func get_province_at_pos(pos: Vector2, map_sprite: Sprite2D = null) -> int:
 
 
 func update_hover(global_pos: Vector2, map_sprite: Sprite2D) -> void:
+
 	if _is_mouse_over_ui():         
 		if last_hovered_pid > 1:
 			_update_lookup(last_hovered_pid, original_hover_color)
 			last_hovered_pid = -1
+			Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 		return
 	
 	var pid = get_province_at_pos(global_pos, map_sprite)
-	print(pid)
+	
+	if GameState.choosing_deploy_city:
+		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
+		if pid != last_hovered_pid:
 
-	if pid != last_hovered_pid:
-		if last_hovered_pid > 1:
-			_update_lookup(last_hovered_pid, original_hover_color)
-		last_hovered_pid = pid
-		if pid > 1:
-			var col = state_color_image.get_pixel(pid, 0)
-			original_hover_color = col
-			_update_lookup(pid, col + Color(0.15, 0.15, 0.15, 0))
-		province_hovered.emit(pid, province_to_country.get(pid, ""))
+			if last_hovered_pid > 1:
+				_update_lookup(last_hovered_pid, original_hover_color)
+			
+			var player_provinces = country_to_provinces.get(CountryManager.player_country.name, [])
+			
+			if pid > 1 and pid in player_provinces:
+				original_hover_color = state_color_image.get_pixel(pid, 0)
+				
+				var highlight_color = original_hover_color + Color(0.0, 1, 0.2, 0.8) 
+				_update_lookup(pid, highlight_color)
+				
+				last_hovered_pid = pid
+				province_hovered.emit(pid, CountryManager.player_country.name)
+			else:
+				last_hovered_pid = -1
+				province_hovered.emit(-1, "")
 
 
 func handle_click(global_pos: Vector2, map_sprite: Sprite2D) -> void:
@@ -318,14 +339,31 @@ func handle_click(global_pos: Vector2, map_sprite: Sprite2D) -> void:
 		return
 
 	var pid = get_province_with_radius(global_pos, map_sprite, 5)
+	
 	if pid <= 1:
 		close_sidemenu.emit()
 		return
 
-	if !TroopManager.troop_selection.selected_troops.is_empty():
-		return
+	if GameState.choosing_deploy_city:
+		var player_provinces = country_to_provinces.get(CountryManager.player_country.name, [])
+		
+		if pid in player_provinces:			
+			province_clicked.emit(pid, CountryManager.player_country.name)
+			
+			CountryManager.player_country.deploy_pid = pid
+			GameState.choosing_deploy_city = false  # Exit deployment mode
+			Input.set_default_cursor_shape(Input.CURSOR_ARROW) # Reset cursor immediately
+			
+			if last_hovered_pid > 1:
+				_update_lookup(last_hovered_pid, original_hover_color)
+				last_hovered_pid = -1
+		else:
+			print("Clicked a province, but it's not yours!")
+			return
 
-	province_clicked.emit(pid, province_to_country.get(pid, ""))
+	else:
+		if TroopManager.troop_selection.selected_troops.is_empty():
+			province_clicked.emit(pid, province_to_country.get(pid, ""))
 
 
 # To probe around and still register a click if we hit province/coutnry border

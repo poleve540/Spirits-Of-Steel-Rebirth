@@ -255,7 +255,7 @@ theme_override_constants/margin_left = 15
 layout_mode = 2
 theme = SubResource("Theme_uqxsi")
 theme_override_font_sizes/font_size = 16
-text = "adsdads"
+text = "00:00 1234-12-12 "
 vertical_alignment = 1
 
 [node name="TextureRect" type="TextureRect" parent="Topbar/MarginContainer2/ColorRect"]
@@ -398,8 +398,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_6c76w")
 
 [node name="TextureRect" type="TextureRect" parent="SidemenuBG/Sidemenu/Panel"]
 layout_mode = 0
-offset_left = 191.0
-offset_right = 241.00003
+offset_left = 198.0
+offset_right = 248.00003
 offset_bottom = 50.0
 texture = ExtResource("2_xsn6u")
 

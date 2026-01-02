@@ -47,12 +47,20 @@ func get_country(c_name: String) -> CountryData:
 	return null
 
 
+# In CountryManager.gd
+
 func set_player_country(country_name: String) -> void:
 	var country := countries.get(country_name.to_lower()) as CountryData
 	if !country:
 		push_error("CountryManager: Requested non-existent country '%s'" % country_name)
 		return
 
+	# Disable AI for the previous player country (if switching is allowed)
+	if player_country:
+		player_country.is_player = false
+
 	player_country = country
+	player_country.is_player = true # <--- IMPORTANT: Disable AI for this country
+	
 	print("Player is now playing as: ", country_name)
 	emit_signal("player_country_changed")

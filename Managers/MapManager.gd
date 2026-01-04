@@ -20,8 +20,12 @@ var id_map_image: Image
 var state_color_image: Image
 var state_color_texture: ImageTexture
 var max_province_id: int = 0
+
 var province_to_country: Dictionary = {}
 var country_to_provinces: Dictionary = {}
+var province_objects: Dictionary = {} 
+
+
 var last_hovered_pid: int = -1
 var original_hover_color: Color
 var province_centers: Dictionary = {} # Stores {ID: Vector2(x, y)}

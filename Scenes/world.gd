@@ -31,7 +31,7 @@ func _on_map_ready() -> void:
 	var id_tex := ImageTexture.create_from_image(MapManager.id_map_image)
 	mat.set_shader_parameter("region_id_map", id_tex)
 	mat.set_shader_parameter("state_colors", MapManager.state_color_texture)
-	# You can use either regions.png or cultures.png as base — most people use regions for clarity
+	# You can use either regions.png or cultures.png as base
 	mat.set_shader_parameter("original_texture", map_sprite.texture)
 	mat.set_shader_parameter("tex_size", Vector2(map_width, MapManager.id_map_image.get_height()))
 	mat.set_shader_parameter("country_border_color", Color.BLACK)

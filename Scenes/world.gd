@@ -58,7 +58,7 @@ func _on_map_ready() -> void:
 		var selected_provinces = provinces.slice(0, min(5, provinces.size()))
 		for pid in selected_provinces:
 			TroopManager.create_troop(c, randi_range(1, 10), pid)
-
+	
 
 
 func _create_ghost_map(offset: Vector2, p_material: ShaderMaterial) -> void:

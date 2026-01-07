@@ -52,16 +52,16 @@ var sfx_players: Array[AudioStreamPlayer] = []
 const gameMusic = "res://assets/music/gameMusic"
 const warMusic = "res://assets/music/warMusic"
 
-func load_music(Music):
+func load_music(Music, track):
 	for song in DirAccess.open(Music).get_files():
 		if song.get_extension() != "import":
-			music_map[MUSIC.MAIN_THEME].append(load(Music + "/" + song))
+			music_map[track].append(load(Music + "/" + song))
 
 func _ready():
 	# Music player
 
-	load_music(gameMusic)
-	load_music(warMusic)
+	load_music(gameMusic, MUSIC.MAIN_THEME)
+	load_music(warMusic, MUSIC.BATTLE_THEME)
 
 	print(music_map)
 
@@ -109,7 +109,6 @@ func play_music(track: int):
 func stop_all_sfx():
 	for player in sfx_players:
 		player.stop()
-
 
 # *** BONUS: Fade out music ***
 func fade_out_music(duration: float = 1.0):

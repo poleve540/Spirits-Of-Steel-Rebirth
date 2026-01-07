@@ -7,6 +7,7 @@ class_name DecisionTree
 @onready var tree_content := $ScrollContainer/TreeContent as Control
 
 
+
 func _ready():
 	hide()
 	load_and_build_tree()
@@ -35,14 +36,18 @@ func _create_category_label(category_name: String, nodes: Array):
 	if nodes.is_empty():
 		return
 
+	var font = load("res://font/Google_Sans/static/GoogleSans-BoldItalic.ttf") as FontFile
 	var label := Label.new()
 	label.text = category_name.to_upper()
 	label.position = Vector2(nodes[0]["pos"][0], nodes[0]["pos"][1] - 40)
 	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_font_override("font", font)
+
 	tree_content.add_child(label)
 
 func _create_decision_button(node_data: Dictionary):
 	var btn := Button.new()
+
 	btn.text = node_data["title"]
 	btn.position = Vector2(node_data["pos"][0], node_data["pos"][1])
 	btn.custom_minimum_size = Vector2(160, 50)

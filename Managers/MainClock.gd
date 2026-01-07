@@ -78,6 +78,8 @@ func toggle_pause() -> void:
 	if is_processing():
 		set_process(false)
 		GameState.ui_layer.pause_icon.text = "P"
+		GameState.ui_layer.pause_icon.add_theme_color_override("font_color", Color.RED)
 	else:
 		set_process(true)
 		GameState.ui_layer.pause_icon.text = "R"
+		GameState.ui_layer.pause_icon.add_theme_color_override("font_color", Color.GREEN)

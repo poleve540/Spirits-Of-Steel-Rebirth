@@ -26,8 +26,8 @@ enum Category { GENERAL, ECONOMY, MILITARY }
 @export var action_scene: PackedScene = preload("res://Scenes/action.tscn")
 
 # ── Speed Controls ────────────────────────────────────
-@onready var plus: Button = $SpeedPanel/GameSpeedControl/Plus
-@onready var minus: Button = $SpeedPanel/GameSpeedControl/Minus
+@onready var plus: Button = $SpeedPanel/GameSpeedControl/PlusPanel/Plus
+@onready var minus: Button = $SpeedPanel/GameSpeedControl/MinusPanel/Minus
 
 # ── State Variables ───────────────────────────────────
 var player: CountryData = null

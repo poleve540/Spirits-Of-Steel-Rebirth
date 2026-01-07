@@ -1,6 +1,6 @@
-[gd_resource type="Theme" load_steps=7 format=3 uid="uid://c38ivksvf4is0"]
+[gd_resource type="Theme" load_steps=7 format=3 uid="uid://6wluupp1lmut"]
 
-[ext_resource type="FontFile" uid="uid://c1jnrhadjfe68" path="res://font/Google_Sans/static/GoogleSans-Regular.ttf" id="1_jjpe7"]
+[ext_resource type="FontFile" uid="uid://c1jnrhadjfe68" path="res://font/Google_Sans/static/GoogleSans-Regular.ttf" id="1_huv4u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_y3u7b"]
 content_margin_left = 4.0
@@ -8,6 +8,10 @@ content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
 bg_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 corner_detail = 5
 shadow_color = Color(0, 0, 0, 0.13333334)
 shadow_size = 10
@@ -25,6 +29,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 corner_detail = 5
 shadow_color = Color(0, 0, 0, 0.5921569)
 shadow_size = 15
@@ -35,6 +43,10 @@ content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
 bg_color = Color(0.24840015, 0.24840018, 0.24840012, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 corner_detail = 5
 shadow_color = Color(0, 0, 0, 0.28235295)
 shadow_size = 15
@@ -45,12 +57,16 @@ content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
 bg_color = Color(0.4045111, 0.40451115, 0.4045111, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 corner_detail = 5
 shadow_color = Color(0, 0, 0, 0.47058824)
 shadow_size = 10
 
 [resource]
-default_font = ExtResource("1_jjpe7")
+default_font = ExtResource("1_huv4u")
 default_font_size = 18
 Button/colors/font_color = Color(0.875, 0.875, 0.875, 1)
 Button/colors/font_disabled_color = Color(1, 1, 1, 1)
@@ -69,7 +85,7 @@ Button/constants/align_to_largest_stylebox = 0
 Button/constants/h_separation = 4
 Button/constants/icon_max_width = 0
 Button/constants/outline_size = 0
-Button/fonts/font = ExtResource("1_jjpe7")
+Button/fonts/font = ExtResource("1_huv4u")
 Button/styles/disabled = SubResource("StyleBoxFlat_y3u7b")
 Button/styles/focus = SubResource("StyleBoxEmpty_umafu")
 Button/styles/hover = SubResource("StyleBoxFlat_hr0ed")

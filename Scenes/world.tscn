@@ -43,3 +43,6 @@ script = ExtResource("6_5ukr8")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
+
+[node name="Line2D" type="Line2D" parent="."]
+points = PackedVector2Array(28.46, -9.96, -22, 12, -28.37, -9.445)

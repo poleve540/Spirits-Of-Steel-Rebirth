@@ -1,4 +1,5 @@
 extends CanvasLayer
+class_name GameUI
 
 # ── Enums ─────────────────────────────────────────────
 enum Context { SELF, WAR, DIPLOMACY }
@@ -43,12 +44,16 @@ var pos_closed := Vector2.ZERO
 var current_context: Context = Context.SELF
 var current_category: Category = Category.GENERAL
 
+@export var pause_icon: Label
+
 
 func _ready() -> void:
 	pos_open = sidemenu.position
 	pos_closed = Vector2(pos_open.x - sidemenu.size.x, pos_open.y)
 	sidemenu.position = pos_closed
 	label_date.text = MainClock.get_datetime_string()
+
+	GameState.ui_layer = self
 
 	# Wait one frame to ensure singletons are ready
 	await get_tree().process_frame

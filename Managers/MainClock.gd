@@ -12,9 +12,9 @@ signal day_passed
 @export var start_day := 1 # 1-31
 @export var start_hour := 0
 
-var time_scale := 0.0
+var time_scale := 15.0
+var MIN_SPEED := 15.0
 var MAX_SPEED := 75.0
-var PAUSE := 0.0
 
 var hour: int = start_hour
 var date_dict: Dictionary = {
@@ -25,11 +25,11 @@ var date_dict: Dictionary = {
 var accumulated_time: float = 0.0
 
 
-func _process(delta: float) -> void:
-	if time_scale <= PAUSE:
-		return
+func _ready() -> void:
+	set_process(false)
 
-	# NOTE(pol): We should use a Timer
+
+func _process(delta: float) -> void:
 	accumulated_time += delta * time_scale
 	while accumulated_time >= seconds_per_tick:
 		accumulated_time -= seconds_per_tick
@@ -62,7 +62,8 @@ func get_datetime_string() -> String:
 
 
 func set_speed(scale: float) -> void:
-	time_scale = clamp(scale, PAUSE, MAX_SPEED)
+	time_scale = clamp(scale, MIN_SPEED, MAX_SPEED)
+	print(time_scale)
 
 
 func decreaseSpeed():
@@ -76,5 +77,7 @@ func increaseSpeed():
 func toggle_pause() -> void:
 	if is_processing():
 		set_process(false)
+		GameState.ui_layer.pause_icon.text = "P"
 	else:
 		set_process(true)
+		GameState.ui_layer.pause_icon.text = "R"

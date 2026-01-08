@@ -8,7 +8,7 @@ extends Node2D
 const MAP_SHADER = preload("res://shaders/map_shader.gdshader")
 
 var map_width: float = 0.0
-
+var map_height: float = 0.0
 
 func _ready() -> void:
 	await get_tree().process_frame # wait for Managers (singletons) to load
@@ -22,7 +22,7 @@ func _ready() -> void:
 func _on_map_ready() -> void:
 	print("World: Map is ready -> configuring visuals...")
 	map_width = MapManager.id_map_image.get_width()
-
+	map_height = MapManager.id_map_image.get_height()
 	var mat := ShaderMaterial.new()
 	mat.shader = MAP_SHADER
 	
@@ -58,8 +58,11 @@ func _on_map_ready() -> void:
 	
 	map_sprite.material = mat
 	
-	_create_ghost_map(Vector2(-map_width, 0), mat)
-	_create_ghost_map(Vector2(map_width, 0), mat)
+	#_create_ghost_map(Vector2(-map_width, 0), mat)
+	#_create_ghost_map(Vector2(map_width, 0), mat)
+	for i in [-2, -1, 1, 2]:
+		_create_ghost_map(Vector2	(i * map_width, 0), mat)
+
 	
 	if troop_renderer:
 		troop_renderer.map_sprite = map_sprite

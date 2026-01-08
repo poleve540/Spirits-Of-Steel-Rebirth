@@ -74,10 +74,6 @@ func get_speed() -> String:
 func set_speed(scale: float) -> void:
 	time_scale = clamp(scale, PAUSE, MAX_SPEED)
 
-func pause(is_paused: bool):
-	if is_paused:
-		set_speed(0)
-
 func decreaseSpeed():
 	set_speed(time_scale - 15)
 	print(time_scale)
@@ -87,8 +83,9 @@ func increaseSpeed():
 	set_speed(time_scale + 15)
 
 
-func toggle_pause() -> void:
+func toggle_pause():
 	if is_processing():
+		set_speed(0)
 		set_process(false)
 	else:
 		set_process(true)

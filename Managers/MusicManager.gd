@@ -117,6 +117,9 @@ func fade_out_music(duration: float = 1.0):
 	await tween.finished
 	music_player.stop()
 
-
+func set_sfx_volume(volume: float):
+	for player in sfx_players:
+		player.volume_db = linear_to_db(volume)
+		
 func set_music_volume(volume: float):
 	music_player.volume_db = linear_to_db(volume)

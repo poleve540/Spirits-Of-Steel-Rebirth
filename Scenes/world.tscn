@@ -18,6 +18,7 @@ load_path = "res://.godot/imported/regions.png-75b8193867ba7ee4418b242a7a7efe49.
 script = ExtResource("1_go701")
 
 [node name="ui_game" parent="." instance=ExtResource("2_fo5ed")]
+slide_duration = null
 
 [node name="MapContainer" type="Node2D" parent="."]
 

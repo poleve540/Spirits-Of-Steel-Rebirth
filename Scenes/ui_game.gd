@@ -18,7 +18,7 @@ enum Category { GENERAL, ECONOMY, MILITARY }
 }
 
 # ── Side Menu Nodes ───────────────────────────────────
-@onready var sidemenu: Control = $SidemenuBG/Sidemenu
+@onready var sidemenu: Control = $SidemenuBG
 @onready var sidemenu_flag: TextureRect = $SidemenuBG/Sidemenu/PanelContainer/VBoxContainer/Flag/TextureRect
 @onready var label_country_sidemenu: Label = $SidemenuBG/Sidemenu/PanelContainer/VBoxContainer/Label
 @onready var label_category: Label = $SidemenuBG/Sidemenu/Panel/label_category

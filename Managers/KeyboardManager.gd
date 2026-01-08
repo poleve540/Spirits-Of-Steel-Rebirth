@@ -1,7 +1,7 @@
 extends Node
 
 # Use the same names as your MapManager functions for clarity
-enum MapView { COUNTRIES, POPULATION }
+enum MapView { COUNTRIES, POPULATION, GDP }
 var current_view = MapView.COUNTRIES
 
 signal toggle_menu()
@@ -37,10 +37,15 @@ func _cycle_map_mode() -> void:
 	match current_view:
 		MapView.COUNTRIES:
 			current_view = MapView.POPULATION
-			print("KeyboardManager: Switching to POPULATION")
 			MapManager.show_population_map()
+			print("Map Mode: Population")
 			
 		MapView.POPULATION:
+			current_view = MapView.GDP
+			MapManager.show_gdp_map()
+			print("Map Mode: GDP")
+			
+		MapView.GDP:
 			current_view = MapView.COUNTRIES
-			print("KeyboardManager: Switching to COUNTRIES")
 			MapManager.show_countries_map()
+			print("Map Mode: Countries")

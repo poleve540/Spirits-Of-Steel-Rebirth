@@ -64,7 +64,18 @@ func get_country_population(country_name: String) -> int:
 			total_pop += MapManager.province_objects[pid].population
 	return total_pop
 
-# In CountryManager.gd
+func get_country_gdp(country_name: String) -> int:
+	if not MapManager.country_to_provinces.has(country_name):
+		return 0
+		
+	var total_gdp: int = 0
+	var pids = MapManager.country_to_provinces[country_name]
+	
+	for pid in pids:
+		if MapManager.province_objects.has(pid):
+			total_gdp += MapManager.province_objects[pid].gdp
+			
+	return total_gdp
 
 func set_player_country(country_name: String) -> void:
 	var country := countries.get(country_name.to_lower()) as CountryData

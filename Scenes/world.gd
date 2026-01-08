@@ -61,7 +61,7 @@ func _on_map_ready() -> void:
 	#_create_ghost_map(Vector2(-map_width, 0), mat)
 	#_create_ghost_map(Vector2(map_width, 0), mat)
 	for i in [-2, -1, 1, 2]:
-		_create_ghost_map(Vector2	(i * map_width, 0), mat)
+		_create_ghost_map(Vector2(i * map_width, 0), mat)
 
 	
 	if troop_renderer:

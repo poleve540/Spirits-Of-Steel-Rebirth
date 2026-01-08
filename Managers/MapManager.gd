@@ -24,6 +24,8 @@ var max_province_id: int = 0
 
 var color_to_pop_map: Dictionary = {} # Stores {"(0, 10, 255)": 764}
 var color_to_city_map: Dictionary = {}
+var gdp_map: Dictionary = {}
+
 
 var province_to_country: Dictionary = {}
 var country_to_provinces: Dictionary = {}
@@ -42,11 +44,15 @@ const CACHE_FOLDER = "res://map_data/"
 @export var culture_texture: Texture2D
 @export var population_texture: Texture2D
 @export var city_texture: Texture2D
+@export var gdp_texture: Texture2D
+
+
 
 func _ready() -> void:
 	_load_country_colors()
 	_load_population_json()
 	_load_city_json()
+	_load_gdp_json()
 	var dir = DirAccess.open("res://")
 	if dir and not dir.dir_exists(CACHE_FOLDER):
 		dir.make_dir_recursive(CACHE_FOLDER)
@@ -60,10 +66,12 @@ func _ready() -> void:
 	var culture = culture_texture if culture_texture else preload("res://maps/cultures.png")
 	var population = population_texture if population_texture else preload("res://maps/population_color_map.png")
 	var city = city_texture if city_texture else preload("res://maps/city_colors.png")
-	_generate_and_save.call_deferred(region, culture, population, city)
+	var gdp_data = gdp_texture if gdp_texture else preload("res://maps/gdp_data.png")
 
-func _generate_and_save(region: Texture2D, culture: Texture2D, population: Texture2D, city: Texture2D) -> void:
-	initialize_map(region, culture, population, city)
+	_generate_and_save.call_deferred(region, culture, population, city, gdp_data)
+
+func _generate_and_save(region: Texture2D, culture: Texture2D, population: Texture2D, city: Texture2D, gdp_data: Texture2D) -> void:
+	initialize_map(region, culture, population, city, gdp_data)
 
 	var map_data := MapData.new()
 	map_data.province_centers = province_centers.duplicate()
@@ -93,12 +101,13 @@ func _try_load_cached_data() -> bool:
 	_build_lookup_texture()
 	return true
 
-func initialize_map(region_tex: Texture2D, culture_tex: Texture2D, population_tex: Texture2D, city_tex: Texture2D) -> void:
+func initialize_map(region_tex: Texture2D, culture_tex: Texture2D, population_tex: Texture2D, city_tex: Texture2D, gdp_tex) -> void:
 	var r_img = region_tex.get_image()
 	var c_img = culture_tex.get_image()
 	var p_img = population_tex.get_image()
 	var city_img = city_tex.get_image()
-	
+	var gdp_img = gdp_tex.get_image()
+
 	var w = r_img.get_width()
 	var h = r_img.get_height()
 	
@@ -133,8 +142,11 @@ func initialize_map(region_tex: Texture2D, culture_tex: Texture2D, population_te
 				# Use MIN to prevent index errors even if images differ by 1 pixel
 				var p_color = p_img.get_pixel(min(x, pw-1), min(y, ph-1))
 				var city_color = city_img.get_pixel(min(x, pw-1), min(y, ph-1))
+				var gdp_color = gdp_img.get_pixel(min(x, pw-1), min(y, ph-1))
+
 				province.population = _get_pop_from_color(p_color)
 				province.city = _get_city_from_color(city_color)
+				province.gdp = _get_gdp_from_color(gdp_color)
 				province_objects[next_id] = province
 				province_to_country[next_id] = province.country
 				next_id += 1
@@ -320,6 +332,7 @@ func handle_click(global_pos: Vector2, map_sprite: Sprite2D) -> void:
 		return
 
 	var pid = get_province_with_radius(global_pos, map_sprite, 5)
+#	print (province_objects[pid].gdp)
 	if pid <= 1:
 		close_sidemenu.emit()
 		return
@@ -546,8 +559,6 @@ func _find_path_astar(start_pid: int, end_pid: int, allowed_countries: Array[Str
 	var f_score: Dictionary = {}
 	var open_set_hash: Dictionary = {start_pid: true} 
 
-	# 3. "Go as near as you can" tracking
-	# We track the node with the lowest distance (heuristic) to the target
 	var closest_pid_so_far = start_pid
 	var closest_dist_so_far = _heuristic(start_pid, end_pid)
 
@@ -693,6 +704,43 @@ func show_population_map() -> void:
 	state_color_texture.update(state_color_image)
 	print("MapManager: Population View Updated. Max Pop found: ", current_max_pop)
 
+func _get_gdp_heatmap_color(gdp: int, max_gdp: float) -> Color:
+	if gdp <= 0:
+		return Color(0.1, 0.1, 0.1) # Dark gray for no data
+	
+	# Using Square Root scale to make lower GDP differences more visible
+	# Otherwise, the richest city makes everything else look the same color.
+	var intensity = clamp(sqrt(float(gdp)) / sqrt(max_gdp), 0.0, 1.0)
+	
+	var col: Color
+	if intensity < 0.5:
+		# Low GDP: Dark Red/Purple -> Neutral White/Blue
+		col = Color(0.6, 0.1, 0.1).lerp(Color.ALICE_BLUE, intensity * 2.0)
+	else:
+		# High GDP: White/Blue -> Deep Electric Blue
+		col = Color.ALICE_BLUE.lerp(Color(0.0, 0.4, 1.0), (intensity - 0.5) * 2.0)
+	
+	return col
+
+func show_gdp_map() -> void:
+	if province_objects.is_empty():
+		return
+		
+	var current_max_gdp: float = 1.0 
+	for province in province_objects.values():
+		if province.gdp > current_max_gdp:
+			current_max_gdp = float(province.gdp)
+
+	for pid in province_objects.keys():
+		var province = province_objects[pid]
+		
+		if pid <= 1: continue 
+		
+		var gdp_color = _get_gdp_heatmap_color(province.gdp, current_max_gdp)
+		state_color_image.set_pixel(pid, 0, gdp_color)
+	
+	state_color_texture.update(state_color_image)
+	print("MapManager: GDP View Updated. Max GDP: ", current_max_gdp)
 
 func show_countries_map() -> void:
 	state_color_image.set_pixel(0, 0, SEA_MAIN)   # ID 0: Sea
@@ -825,3 +873,46 @@ func _get_city_from_color(c: Color) -> String:
 		return best_match
 		
 	return ""
+	
+
+func _load_gdp_json() -> void:
+	var path = "res://map_data/gdp_data.json"
+	if not FileAccess.file_exists(path):
+		push_error("GDP JSON missing!")
+		return
+		
+	var file = FileAccess.open(path, FileAccess.READ)
+	var json_data = JSON.parse_string(file.get_as_text())
+	if json_data is Dictionary:
+		gdp_map = json_data
+
+func _get_gdp_from_color(c: Color) -> int:
+	var r = int(round(c.r * 255.0))
+	var g = int(round(c.g * 255.0))
+	var b = int(round(c.b * 255.0))
+	
+	var exact_key = "(%d, %d, %d)" % [r, g, b]
+	
+	if gdp_map.has(exact_key):
+		return int(gdp_map[exact_key])
+	
+	var tight_key = "(%d,%d,%d)" % [r, g, b]
+	if gdp_map.has(tight_key):
+		return int(gdp_map[tight_key])
+
+	var best_gdp = 0
+	var min_dist = 999999.0
+	
+	for color_str in gdp_map.keys():
+		var target_rgb = _parse_color_string(color_str)
+		# Using Euclidean distance squared to find the closest color
+		var dist = (Vector3(r, g, b) - target_rgb).length_squared()
+		
+		if dist < min_dist:
+			min_dist = dist
+			best_gdp = int(gdp_map[color_str])
+			
+	if min_dist < 200: 
+		return best_gdp
+		
+	return 0

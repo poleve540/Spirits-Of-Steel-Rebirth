@@ -243,11 +243,25 @@ func _update_ui() -> void:
 
 func _on_stats_changed() -> void:
 	if !player: return
+	
 	stats_labels.pp.text = str(floori(player.political_power))
-	stats_labels.manpower.text = str(player.manpower)
-	stats_labels.money.text = str(player.money)
-	#stats_labels.industry.text = str(player.com) # Added missing label
 	stats_labels.stability.text = str(round(player.stability * 100)) + "%"
+	
+	stats_labels.manpower.text = format_number(player.manpower)
+	stats_labels.money.text = "$" + format_number(player.money)
+
+func format_number(value: float) -> String:
+	var abs_val = abs(value)
+	var sign_str = "-" if value < 0 else ""
+	
+	if abs_val >= 1_000_000_000:
+		return sign_str + "%.2fB" % (abs_val / 1_000_000_000.0)
+	elif abs_val >= 1_000_000:
+		return sign_str + "%.2fM" % (abs_val / 1_000_000.0)
+	elif abs_val >= 1_000:
+		return sign_str + "%.1fK" % (abs_val / 1_000.0)
+	else:
+		return sign_str + str(floori(abs_val))
 
 func _on_time_passed() -> void:
 	label_date.text = MainClock.get_datetime_string()

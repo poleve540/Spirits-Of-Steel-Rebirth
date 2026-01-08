@@ -8,10 +8,11 @@ var is_player: bool = false
 # --- Population & Resources ---
 var total_population: int = 0
 var political_power: float = 50.0
-var money: float = 40000.0
-var manpower: int = 0          # Initialized in _init as 0.5% of pop
-var stability: float = 0.5      # 0.0 to 1.0
-var war_support: float = 0.5    # 0.0 to 1.0
+var money: float = 0
+var gdp: int = 0
+var manpower: int = 0        
+var stability: float = 0.5      
+var war_support: float = 0.5    
 
 # --- Economy/Growth ---
 var daily_pp_gain: float = 0.04
@@ -47,6 +48,8 @@ func _init(p_name: String) -> void:
 	
 	total_population = CountryManager.get_country_population(country_name)
 	
+	gdp = CountryManager.get_country_gdp(country_name) * total_population * 0.000001
+	money = gdp
 	# 2. Set Manpower to 0.5% of popultion
 	manpower = int(total_population * 0.005)
 
@@ -56,13 +59,16 @@ func _init(p_name: String) -> void:
 func process_hour() -> void:
 	# 1. Update Economy
 	political_power += daily_pp_gain
-	money += (hourly_money_income - calculate_army_upkeep())
+	money += gdp / 8760 * 0.5 # (365 * 24) (0.5 because citizens PAY TAX 
+	
+	money -= calculate_army_upkeep ()
 	#manpower += daily_manpower_growth # You might want to make this % based too
 	
 	if not is_player:
 		_process_ai_decisions()
 
 func process_day() -> void:
+	gdp = CountryManager.get_country_gdp(country_name) * total_population * 0.000001 # Daily because it may cost too much in performance idk
 	_process_training()
 
 # =========================================================

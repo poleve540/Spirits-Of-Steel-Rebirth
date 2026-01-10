@@ -44,7 +44,7 @@ const STACKING_OFFSET_Y := 20.0
 # =========================================================
 # Variables
 # =========================================================
-var _font: Font = preload("res://font/TTT-Regular.otf")
+var _font: Font = preload("res://font/arial.TTF")
 const BATTLE_ICON: Texture2D = preload("res://assets/icons/battle_element_transparent.png")
 
 var map_sprite: Sprite2D
@@ -263,23 +263,18 @@ func _draw_cities() -> void:
 				_draw_city_name_visual(draw_pos, province.city)
 
 func _draw_city_name_visual(pos: Vector2, text: String) -> void:
-	var font_size = int(14 * _current_inv_zoom)
-	var offset_y = -12.0 * _current_inv_zoom
-	var outline_offset = 1.5 
+	if text.is_empty(): return
+
+	# fix the zoom someone
+	var font_size = clampi(int(19 * _current_inv_zoom), 12, 32)
+	var outline_size = clampi(int(2 * _current_inv_zoom), 1, 3)
 	
-	var text_size = _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
-	var text_pos = pos + Vector2(-text_size.x / 2.0, offset_y - (text_size.y / 2.0))
+	var text_w = _font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var draw_pos = (pos + Vector2(-text_w / 2.0, 0)).round()
 
-	var shadow_col = Color(0, 0, 0, 0.8)
-	var offsets = [
-		Vector2(-outline_offset, -outline_offset),
-		Vector2(outline_offset, -outline_offset),
-		Vector2(-outline_offset, outline_offset),
-		Vector2(outline_offset, outline_offset)
-	]
+	var outline_col = Color(0, 0, 0, 0.8)
+	var dirs = [Vector2(1,1), Vector2(-1,1), Vector2(1,-1), Vector2(-1,-1)]
+	for dir in dirs:
+		draw_string(_font, draw_pos + (dir * outline_size), text, 0, -1, font_size, outline_col)
 
-	for off in offsets:
-		draw_string(_font, text_pos + off, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, shadow_col)
-
-	# Draw Main Text
-	draw_string(_font, text_pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color.WHITE)
+	draw_string(_font, draw_pos, text, 0, -1, font_size, Color.WHITE)

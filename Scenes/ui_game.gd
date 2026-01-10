@@ -6,29 +6,29 @@ enum Context { SELF, WAR, DIPLOMACY }
 enum Category { GENERAL, ECONOMY, MILITARY }
 
 # ── Top Bar Nodes ─────────────────────────────────────
-@onready var nation_flag: TextureRect = $Topbar/MarginContainer/HBoxContainer/nation_flag
+@onready var nation_flag: TextureRect = $Topbar/nation_flag
 @onready var label_date: Label = $Topbar/MarginContainer2/ColorRect/MarginContainer/label_date
 # Grouping stats for easier updates
 @onready var stats_labels := {
-	"pp": $Topbar/MarginContainer/HBoxContainer/label_politicalpower,
-	"manpower": $Topbar/MarginContainer/HBoxContainer/label_manpower,
-	"money": $Topbar/MarginContainer/HBoxContainer/label_money,
-	"industry": $Topbar/MarginContainer/HBoxContainer/label_industry,
-	"stability": $Topbar/MarginContainer/HBoxContainer/label_stability
+	"pp": $Topbar/MarginContainer/HBoxContainer/PoliticalPower/HBoxContainer/label_politicalpower,
+	"manpower": $Topbar/MarginContainer/HBoxContainer/Manpower/HBoxContainer/label_manpower,
+	"money": $Topbar/MarginContainer/HBoxContainer/Money/HBoxContainer/label_money,
+	"industry": $Topbar/MarginContainer/HBoxContainer/Industry/HBoxContainer/label_industry,
+	"stability": $Topbar/MarginContainer/HBoxContainer/Stability/HBoxContainer/label_stability
 }
 
 # ── Side Menu Nodes ───────────────────────────────────
-@onready var sidemenu: Control = $Sidemenu
-@onready var sidemenu_flag: TextureRect = $Sidemenu/Flag/TextureRect
-@onready var label_country_sidemenu: Label = $Sidemenu/Label
-@onready var label_category: Label = $Sidemenu/Panel/label_category
-@onready var actions_container: VBoxContainer = $Sidemenu/ScrollContainer/ActionsList
+@onready var sidemenu: Control = $SidemenuBG
+@onready var sidemenu_flag: TextureRect = $SidemenuBG/Sidemenu/PanelContainer/VBoxContainer/Flag/TextureRect
+@onready var label_country_sidemenu: Label = $SidemenuBG/Sidemenu/PanelContainer/VBoxContainer/Label
+@onready var label_category: Label = $SidemenuBG/Sidemenu/Panel/label_category
+@onready var actions_container: VBoxContainer = $SidemenuBG/Sidemenu/ScrollContainer/ActionsList
 
-@export var action_scene: PackedScene = preload("res://Scenes/action.tscn")
+@export var action_scene: PackedScene
 
 # ── Speed Controls ────────────────────────────────────
-@onready var plus: Button = $GameSpeedControl/Plus
-@onready var minus: Button = $GameSpeedControl/Minus
+@onready var plus: Button = $SpeedPanel/GameSpeedControl/PlusPanel/Plus
+@onready var minus: Button = $SpeedPanel/GameSpeedControl/MinusPanel/Minus
 
 # ── State Variables ───────────────────────────────────
 var player: CountryData = null
@@ -52,15 +52,19 @@ func _ready() -> void:
 	pos_open = sidemenu.position
 	pos_closed = Vector2(pos_open.x - sidemenu.size.x, pos_open.y)
 	sidemenu.position = pos_closed
-	label_date.text = MainClock.get_datetime_string()
 
-	GameState.ui_layer = self
+	GameState.game_ui = self
 
-	# Wait one frame to ensure singletons are ready
 	await get_tree().process_frame
-	_connect_signals()
+	MapManager.province_clicked.connect(_on_province_clicked)
+	MapManager.close_sidemenu.connect(close_menu)
+	
+	KeyboardManager.toggle_menu.connect(toggle_menu)
+	
+	CountryManager.player_stats_changed.connect(_on_stats_changed)
+	CountryManager.player_country_changed.connect(_on_player_change)
 
-# ── Data Definition ───────────────────────────────────
+
 # Returns the specific list of actions based on Context + Category
 func _get_menu_actions(context: Context, category: Category) -> Array:
 	# Base structure: Dictionary[Context][Category] = Array of Actions
@@ -111,22 +115,7 @@ func _get_menu_actions(context: Context, category: Category) -> Array:
 		return data[context][category]
 	return []
 
-# ── Signal Connections ────────────────────────────────
-func _connect_signals() -> void:
-	MainClock.hour_passed.connect(_on_time_passed)
-	
-	MapManager.province_clicked.connect(_on_province_clicked)
-	MapManager.close_sidemenu.connect(close_menu)
-	
-	KeyboardManager.toggle_menu.connect(toggle_menu)
-	
-	CountryManager.player_stats_changed.connect(_on_stats_changed)
-	CountryManager.player_country_changed.connect(_on_player_change)
-	
-	plus.pressed.connect(func(): MainClock.increase_speed())
-	minus.pressed.connect(func(): MainClock.decrease_speed())
 
-# ── Interaction Logic ─────────────────────────────────
 func _on_player_change() -> void: 
 	player = CountryManager.player_country 
 	_update_flag()
@@ -152,7 +141,7 @@ func _on_province_clicked(_pid: int, country_name: String) -> void:
 	
 func _on_menu_button_button_up(_menu_index: int) -> void:
 	current_category = _menu_index as Category
-	_build_action_list()		
+	_build_action_list()
 #	print("Switched category to: ", Category.keys()[current_category])
 
 func toggle_menu(context := Context.SELF) -> void:
@@ -264,7 +253,16 @@ func format_number(value: float) -> String:
 		return sign_str + str(floori(abs_val))
 
 func _on_time_passed() -> void:
-	label_date.text = MainClock.get_datetime_string()
+	var bar: Dictionary[float, String]= {
+		0.0: "▁",
+		1.0: "▂",
+		2.0: "▃",
+		3.0: "▄",
+		4.0: "▅",
+		5.0: "█",
+	}
+	var speed := bar[GameState.current_world.clock.time_scale / 15.0]
+	label_date.text = speed + " " + GameState.current_world.clock.get_datetime_string()
 
 func _update_flag() -> void:
 	if !player: return
